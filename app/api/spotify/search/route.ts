@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const q = searchParams.get('q')?.trim()
   const type = (searchParams.get('type') ?? 'track') as SearchType
-  const limit = Math.min(Number(searchParams.get('limit') ?? 10), 50)
+  const limit = Math.min(Number(searchParams.get('limit') ?? 10), 10)
   const offset = Number(searchParams.get('offset') ?? 0)
 
   if (!q) {
@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
   try {
     const res = await spotifyFetch(`/v1/search?${params}`)
     const data = await res.json()
+    if (!res.ok) return NextResponse.json(data, { status: res.status })
     return NextResponse.json(data)
   } catch (err) {
     if (err instanceof SpotifyError) {
